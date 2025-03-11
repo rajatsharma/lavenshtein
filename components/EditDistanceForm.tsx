@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useTransition, FormEvent, ChangeEvent } from "react";
 import { levenshtein } from "@/lib/levenshtein";
+import { calculateLavenshteinOnServerAction } from "@/actions/calculateLavenshteinOnServer";
 
 export function EditDistanceForm() {
   const [str1, setStr1] = useState<string>("");
@@ -11,10 +12,27 @@ export function EditDistanceForm() {
     null,
   );
 
+  const [isServerPending, startServerTransition] = useTransition();
+
   const handleClientCalculate = () => {
     const distance = levenshtein(str1, str2);
     setClientResult(distance);
     setServerResult(null);
+  };
+
+  const handleServerSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setClientResult(null);
+    setServerResult("Calculating...");
+
+    startServerTransition(async () => {
+      const result = await calculateLavenshteinOnServerAction(str1, str2);
+      if ("error" in result) {
+        setServerResult(`Server Error: ${result.error}`);
+      } else {
+        setServerResult(result.distance);
+      }
+    });
   };
 
   const inputStyles = `
@@ -41,7 +59,7 @@ export function EditDistanceForm() {
 
   return (
     <div className="w-full max-w-xl mx-auto p-6 md:p-8 bg-white dark:bg-zinc-800 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700">
-      <form onSubmit={console.log} className="space-y-6">
+      <form onSubmit={handleServerSubmit} className="space-y-6">
         <div>
           <label
             htmlFor="str1"
@@ -83,6 +101,13 @@ export function EditDistanceForm() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            type="submit"
+            className={`${primaryButtonStyles} flex-1`}
+            disabled={isServerPending || !str1 || !str2}
+          >
+            {isServerPending ? "Calculating Server..." : "Calculate on Server"}
+          </button>
           <button
             type="button"
             onClick={handleClientCalculate}
