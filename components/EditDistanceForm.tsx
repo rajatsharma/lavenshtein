@@ -38,9 +38,9 @@ export function EditDistanceForm() {
   const inputStyles = `
     w-full px-3 py-2 rounded-md bg-gray-100 dark:bg-zinc-800
     border border-zinc-300 dark:border-zinc-700
-    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+    focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-transparent
     font-mono text-zinc-900 dark:text-zinc-100
-    transition-colors duration-200
+    transition-all duration-200
   `;
 
   const buttonStyles = `
@@ -50,7 +50,7 @@ export function EditDistanceForm() {
   `;
 
   const primaryButtonStyles = `
-    ${buttonStyles} bg-amber-500 text-white hover:bg-amber-400 focus:ring-blue-500
+    ${buttonStyles} bg-amber-500 text-white hover:bg-amber-400 focus:ring-gray-500
   `;
 
   const secondaryButtonStyles = `
